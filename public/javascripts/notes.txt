@@ -1,0 +1,15 @@
+
+search should pull character name and id and amount of appearances and sort by appearances.
+
+Pull this from characters...
+name
+real name
+deck
+issue_appearences
+image medium.
+
+powers = will need to search characters by powers SELECT * FROM characters WHERE power = field
+friends = will need to preload small images, characters_ids, character_names
+enemies = ""
+teams = will need to preload teams and team images and team ids. May need to preload
+
