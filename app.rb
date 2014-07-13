@@ -13,3 +13,10 @@ get '/comicchar' do
   response['results'].to_json
 
 end
+
+get '/charData' do
+  url = params[:url]
+  response = HTTParty.get(url)
+  response['results'].to_json
+
+end
