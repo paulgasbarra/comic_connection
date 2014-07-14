@@ -12,6 +12,10 @@ def data_request
    render :json => response['results'].to_json
 end
 
+def record_check
+  Character.exists?(:character_id => params[:api])
+end
+
 def create
   Character.create(character_params)
   # foo = params[:character]

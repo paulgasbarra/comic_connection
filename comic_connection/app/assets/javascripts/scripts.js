@@ -2,8 +2,16 @@
 var displayList = function(list, el){
     $(list).each(function(index){
             var api_key = "?api_key=c449b6dfe0d7bc76f14627f06f9ba2b2adb532b5"
-            var format = "&format=json"
-            var fieldList = "&field_list=count_of_issue_appearances"
+
+            listItemHTML = "<a href='#'>" + list[index].name + "</a>"
+            $listItem = $('<li>').html(listItemHTML)
+            $listItem.addClass("hero")
+            $listItem.attr('text', list[index].api_detail_url)
+
+            $listItem.appendTo(el)
+
+            //var format = "&format=json"
+            //var fieldList = "&field_list=count_of_issue_appearances"
 
 
             //requri = list[index].api_detail_url + api_key + format + fieldList
@@ -20,12 +28,7 @@ var displayList = function(list, el){
             // })
 
 
-            listItemHTML = "<a href='#'>" + list[index].name + "</a>"
-            $listItem = $('<li>').html(listItemHTML)
-            $listItem.addClass("hero")
-            $listItem.attr('text', list[index].api_detail_url)
 
-            $listItem.appendTo(el)
         })
 }
 
@@ -92,12 +95,16 @@ $(document).on('click', ".hero", function (e){
     var api = this.getAttribute('text')
     var api_key = "?api_key=c449b6dfe0d7bc76f14627f06f9ba2b2adb532b5";
     var format = "&format=json"
-    var heroFields = "&field_list=name,count_of_issue_appearances,id,image,deck,character_enemies,character_friends,powers,teams"
+    var heroFields = "&field_list=name,count_of_issue_appearances,api_detail_url,image,deck,character_enemies,character_friends,powers,teams"
     var requri = api + api_key + format + heroFields
     //http://www.comicvine.com/api/character/4005-4713/?api_key=c449b6dfe0d7bc76f14627f06f9ba2b2adb532b5&format=json&field_list=name,id,count_of_issue_appearances,image,deck,character_enemies,character_friends,powers,teams
     console.log(requri)
 
 //if character exists pull data from there.
+
+        $.ajax({
+          url: '/record_check' + api
+        });
 
 //if not pull it from comicvine
 
