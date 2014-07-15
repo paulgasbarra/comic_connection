@@ -1,20 +1,31 @@
 class CharacterController < ApplicationController
 
-def index
-end
+  def index
+  end
 
-def new
-end
+  def new
+  end
 
-def data_request
-   url = params[:url]
-   response = HTTParty.get(url)
-   render :json => response['results'].to_json
-end
+  def data_request
+     url = params[:url]
+     response = HTTParty.get(url)
+     render :json => response['results'].to_json
+  end
 
-def record_check
-  Character.exists?(:character_id => params[:api])
-end
+  def data_pull
+    character = Character.find(:api_detail_url => params[:api_detail_url])
+    binding.pry
+    render :json => character.to_json
+  end
+
+  def record_check
+    if Character.exists?(:api_detail_url => params[:api_detail_url])
+      binding.pry
+      render :json => {success: 1}
+    else
+      render  :json => {success: 0}
+    end
+   end
 
 def create
   Character.create(character_params)

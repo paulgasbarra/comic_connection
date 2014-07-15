@@ -86,49 +86,87 @@ function sortResponse(feed){
     });
  }
 
-
-$(function(){
-
-$(document).on('click', ".hero", function (e){
-     e.preventDefault();
-
-    var api = this.getAttribute('text')
+function heroDetailApiGenerator(api){
     var api_key = "?api_key=c449b6dfe0d7bc76f14627f06f9ba2b2adb532b5";
     var format = "&format=json"
     var heroFields = "&field_list=name,count_of_issue_appearances,api_detail_url,image,deck,character_enemies,character_friends,powers,teams"
     var requri = api + api_key + format + heroFields
-    //http://www.comicvine.com/api/character/4005-4713/?api_key=c449b6dfe0d7bc76f14627f06f9ba2b2adb532b5&format=json&field_list=name,id,count_of_issue_appearances,image,deck,character_enemies,character_friends,powers,teams
-    console.log(requri)
+    return requri
+}
+
+function characterPresent(api){
+    $.ajax({
+          url: '/record_check/',
+          data: {api_detail_url: api},
+          dataType: 'json',
+          success: function(bool){
+            present = (bool === 1) ? true:false ;
+            console.log("Character present = "+ present)
+            return present
+        }
+    })
+}
+
+
+$(function(){
+
+//Get character DATA
+$(document).on('click', ".hero", function (e){
+     e.preventDefault();
+     var api = this.getAttribute('text')
+     var requri = heroDetailApiGenerator(api)
+     console.log(requri)
 
 //if character exists pull data from there.
+     present = new Boolean()
+     present = characterPresent(api)
 
+     // $.ajax({
+     //      url: '/record_check/',
+     //      data: {api_detail_url: api},
+     //      dataType: 'json',
+     //      success: function(bool){
+     //        present = (bool === 0) ? true:false ;
+     //        console.log("Character present = "+ present)
+     //    }
+     //  })
+
+        if (present === true)
+        {
+        //dump this record
         $.ajax({
-          url: '/record_check' + api
-        });
-
-//if not pull it from comicvine
-
-
-    $.ajax({
-        type: 'get',
-        url: '/data_request',
-        data: {url: requri},
-        dataType: 'json',
-        success: function(data){
-          heroDisplay(data);
-          data.character_id = data.id;
-          data.image = data.image.medium_url;
-        $.ajax({
-            type: "POST",
-            url: "/character",
-            data: {character: data}
-         });
-        }//end success fnction
-    })//ajax call
+          type: 'get',
+          url: '/data_pull/',
+          data: {api_detail_url: api},
+          dataType: 'json',
+          success: function(data){
+            console.log("The bat is back!")
+            heroDisplay(data);
+          }
+        })
+        } else {
+    //else pull it from comicvine
+          $.ajax({
+            type: 'get',
+            url: '/data_request',
+            data: {url: requri},
+            dataType: 'json',
+            success: function(data){
+              heroDisplay(data);
+              data.character_id = data.id;
+              data.image = data.image.medium_url;
+                $.ajax({
+                    type: "POST",
+                    url: "/character",
+                    data: {character: data}
+                })//end ajax POST
+          }//end success fnction
+       })//ajax call
+    }//end if-else controlling whether to post or retrieve
   })//heroClicks
 //_______________________
 
-
+//GET LIST OF CHARACTERS
   $('.submit').on('click', function (e){
 
     e.preventDefault();
@@ -174,7 +212,7 @@ $(document).on('click', ".hero", function (e){
             $('<img>').attr('src', image).appendTo("#characterData")
           })//feed.each loop
         }//end success function
-    })//ajax call
+    });//ajax call
   })//onclick function
 
 

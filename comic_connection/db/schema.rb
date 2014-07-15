@@ -21,6 +21,7 @@ ActiveRecord::Schema.define(version: 20140714144150) do
     t.string   "name"
     t.integer  "count_of_issue_appearances"
     t.string   "image"
+    t.string   "api_detail_url"
     t.text     "deck"
     t.text     "character_enemies"
     t.text     "character_friends"
