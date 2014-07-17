@@ -6,7 +6,6 @@ var displayList = function(list, el){
             var fieldList = "&field_list=count_of_issue_appearances"
 
 
-            //http://www.comicvine.com/api/character/4005-4713/?api_key=c449b6dfe0d7bc76f14627f06f9ba2b2adb532b5&format=json&field_list=name,id,count_of_issue_appearances,image,deck,character_enemies,character_friends,powers,teams
             //requri = list[index].api_detail_url + api_key + format + fieldList
             //console.log (requri)
             // $.ajax({
@@ -31,20 +30,35 @@ var displayList = function(list, el){
 }
 
 var heroDisplay = function(data){
-    //name,id,count_of_issue_appearances,image,deck,character_enemies,character_friends,powers,teams
+    //name,id,count_of_issue_appearances,image,deck,character_enemies,
+    //character_friends,powers,teams
     $('#characterStats').html("")
     $friends = $('<div>').addClass('friends')
     $enemies = $('<div>').addClass('enemies')
     $teams = $('<div>').addClass('teams')
     $powers = $('<div>').addClass('powers')
 
-    name = $('#characterData').html(data.name + ": " + data.deck)
-    $('<img>').attr('src', data.image.thumb_url).appendTo("#characterData")
+    $friends.html("<h2>Friends</h2>")
+    $enemies.html("<h2>Enemies</h2>")
+    $teams.html("<h2>Teams</h2>")
+    $powers.html("<h2>Powers</h2>")
+
 
     enemies = data.character_enemies
     friends = data.character_friends
     teams = data.teams
+    powers = data.powers
 
+
+    $('#characterData').html('')
+    $('<img>').addClass('portrait').attr('src', data.image.medium_url).appendTo("#characterData")
+    $('<div>').html(data.name + ": " + data.deck).appendTo('#characterData')
+
+
+    $($friends).appendTo('#characterStats')
+    $($enemies).appendTo('#characterStats')
+    $($teams).appendTo('#characterStats')
+    $($powers).appendTo('#characterStats')
 
     displayList(enemies, '.enemies')
     displayList(friends, '.friends')
@@ -84,7 +98,7 @@ $(document).on('click', ".hero", function (e){
     console.log(requri)
     $.ajax({
         type: 'get',
-        url: '/comicchar',
+        url: '/data_request',
         data: {url: requri},
         dataType: 'json',
         success: function(data){
@@ -118,7 +132,7 @@ $(document).on('click', ".hero", function (e){
 
     $.ajax({
         type: 'get',
-        url: '/comicchar',
+        url: '/data_request',
         data: {url: requri},
         dataType: 'json',
         success: function(feed){

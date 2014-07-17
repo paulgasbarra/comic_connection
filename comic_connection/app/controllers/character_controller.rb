@@ -12,18 +12,12 @@ class CharacterController < ApplicationController
      render :json => response['results'].to_json
   end
 
-  def data_pull
-    character = Character.find(:api_detail_url => params[:api_detail_url])
-    binding.pry
-    render :json => character.to_json
-  end
-
   def record_check
     if Character.exists?(:api_detail_url => params[:api_detail_url])
-      binding.pry
-      render :json => {success: 1}
+      character = Character.find_by(:api_detail_url => params[:api_detail_url])
+      render :json => {character: character}
     else
-      render  :json => {success: 0}
+      render  :json => {character: false}
     end
    end
 

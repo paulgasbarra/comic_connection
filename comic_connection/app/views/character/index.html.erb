@@ -1,28 +1,23 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Comics Connection</title>
+<div class="header">Comics Connection</div>
 
-  <script src = "javascripts/jquery.js"></script>
-  <script src = "javascripts/underscore.js"></script>
-  <script src = "javascripts/backbone.js"></script>
-  <script src = "javascripts/scripts.js"></script>
-  <script src = "javascripts/app.js"></script>
+<div class ="intro">Summon a character.</div>
 
-  <link rel="stylesheet" href="stylesheets/styles.css">
+<div class="search_box">
+<input class="search_box" type="text" name="characterName" id = 'characterName' placeholder="Character name...">
+<a href="#" class = 'submit'>Pull character data</a>
 
-</head>
-<body> -->
-  <h1>Comics Connection</h1>
+<div id= 'characterData'></div>
 
-  <p>Enter a character to get a list of that characters enemies.</p>
+<div class = "friends"><button type="button" onclick="displayCharacter(character_friends)">Friends</div>
 
-    <input type="text" name="characterName" id = 'characterName' placeholder="Character name...">
+<div class = "enemies"><button type="button" onclick="displayCharacter(character_enemies)">Enemies</div>
 
-    <a href="#" class = 'submit'>Pull character data</a>
+<div class = "teams"><button type="button" onclick="displayCharacter(character_friends)">Teams</div>
+
+<div class = "powers"><button type="button" onclick="displayCharacter(powers)">Powers</div>
+
     <div id= 'characterData'></div>
     <div id= 'characterStats'></div>
+    <svg></svg>
 
-<!-- </body>
-</html> -->
+

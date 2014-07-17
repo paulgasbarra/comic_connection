@@ -1,67 +1,46 @@
-
 var displayList = function(list, el){
     $(list).each(function(index){
             var api_key = "?api_key=c449b6dfe0d7bc76f14627f06f9ba2b2adb532b5"
-
             listItemHTML = "<a href='#'>" + list[index].name + "</a>"
             $listItem = $('<li>').html(listItemHTML)
             $listItem.addClass("hero")
             $listItem.attr('text', list[index].api_detail_url)
-
             $listItem.appendTo(el)
-
-            //var format = "&format=json"
-            //var fieldList = "&field_list=count_of_issue_appearances"
-
-
-            //requri = list[index].api_detail_url + api_key + format + fieldList
-            //console.log (requri)
-            // $.ajax({
-            //     type: 'get',
-            //     url: '/comicchar',
-            //     data: {url: requri},
-            //     dataType: 'json',
-            //        success: function(data){
-            //             issues = data.results.count_of_issue_appearances
-            //             console.log(issues)
-            //         }
-            // })
-
-
-
         })
 }
 
 var heroDisplay = function(data){
     //name,id,count_of_issue_appearances,image,deck,character_enemies,
     //character_friends,powers,teams
-    $('#characterStats').html("")
-    $friends = $('<div>').addClass('friends')
-    $enemies = $('<div>').addClass('enemies')
-    $teams = $('<div>').addClass('teams')
-    $powers = $('<div>').addClass('powers')
+    // $('#characterStats').html("")
+    // $friends = $('<div>').addClass('friends')
+    // $enemies = $('<div>').addClass('enemies')
+    // $teams = $('<div>').addClass('teams')
+    // $powers = $('<div>').addClass('powers')
 
-    $friends.html("<h2>Friends</h2>")
-    $enemies.html("<h2>Enemies</h2>")
-    $teams.html("<h2>Teams</h2>")
-    $powers.html("<h2>Powers</h2>")
+    // $friends.html("<h2>Friends</h2>")
+    // $enemies.html("<h2>Enemies</h2>")
+    // $teams.html("<h2>Teams</h2>")
+    // $powers.html("<h2>Powers</h2>")
 
 
     enemies = data.character_enemies
+    console.log(enemies)
     friends = data.character_friends
     teams = data.teams
     powers = data.powers
 
 
+
     $('#characterData').html('')
-    $('<img>').addClass('portrait').attr('src', data.image.medium_url).appendTo("#characterData")
+    $('<img>').addClass('portrait').attr('src', data.image).appendTo("#characterData")
     $('<div>').html(data.name + ": " + data.deck).appendTo('#characterData')
+     $('<div>').html(data.count_of_issue_appearances).appendTo('#characterData')
 
-
-    $($friends).appendTo('#characterStats')
-    $($enemies).appendTo('#characterStats')
-    $($teams).appendTo('#characterStats')
-    $($powers).appendTo('#characterStats')
+    // $($friends).appendTo('#characterStats')
+    // $($enemies).appendTo('#characterStats')
+    // $($teams).appendTo('#characterStats')
+    // $($powers).appendTo('#characterStats')
 
     displayList(enemies, '.enemies')
     displayList(friends, '.friends')
@@ -95,17 +74,54 @@ function heroDetailApiGenerator(api){
 }
 
 function characterPresent(api){
-    $.ajax({
-          url: '/record_check/',
-          data: {api_detail_url: api},
-          dataType: 'json',
-          success: function(bool){
-            present = (bool === 1) ? true:false ;
-            console.log("Character present = "+ present)
-            return present
-        }
-    })
-}
+
+//sub function
+databaseOrAPI(api)
+//original//databaseOrAPI(character, api)
+
+//     $.ajax({
+//           url: '/record_check/',
+//           data: {api_detail_url: api},
+//           dataType: 'json',
+//           success: function(data){
+//             character = data.character
+
+//             console.log("Pulling from paul's db")
+//             databaseOrAPI(character, api)
+//             }
+
+
+//     })
+ }
+function databaseOrAPI(api){
+//original function//function databaseOrAPI(data, api){
+
+        //if (data != false) {
+    //print data fetched from website
+          //heroDisplay(data);
+        //} else {
+    //else pull it from comicvine
+
+          var requri = heroDetailApiGenerator(api)
+          console.log(requri)
+              $.ajax({
+                type: 'get',
+                url: '/data_request',
+                data: {url: requri},
+                dataType: 'json',
+                success: function(data){
+                  data.character_id = data.id;
+                  data.image = data.image.medium_url;
+                  heroDisplay(data);
+                    $.ajax({
+                        type: "POST",
+                        url: "/character",
+                        data: {character: data}
+                    })//end ajax POST
+                }//end success fnction
+              })//ajax call
+      //  }//end if-else controlling whether to post or retrieve
+} //end of database or api
 
 
 $(function(){
@@ -113,57 +129,10 @@ $(function(){
 //Get character DATA
 $(document).on('click', ".hero", function (e){
      e.preventDefault();
-     var api = this.getAttribute('text')
-     var requri = heroDetailApiGenerator(api)
-     console.log(requri)
+     characterPresent(this.getAttribute('text'))
 
-//if character exists pull data from there.
-     present = new Boolean()
-     present = characterPresent(api)
+  })//heroClick
 
-     // $.ajax({
-     //      url: '/record_check/',
-     //      data: {api_detail_url: api},
-     //      dataType: 'json',
-     //      success: function(bool){
-     //        present = (bool === 0) ? true:false ;
-     //        console.log("Character present = "+ present)
-     //    }
-     //  })
-
-        if (present === true)
-        {
-        //dump this record
-        $.ajax({
-          type: 'get',
-          url: '/data_pull/',
-          data: {api_detail_url: api},
-          dataType: 'json',
-          success: function(data){
-            console.log("The bat is back!")
-            heroDisplay(data);
-          }
-        })
-        } else {
-    //else pull it from comicvine
-          $.ajax({
-            type: 'get',
-            url: '/data_request',
-            data: {url: requri},
-            dataType: 'json',
-            success: function(data){
-              heroDisplay(data);
-              data.character_id = data.id;
-              data.image = data.image.medium_url;
-                $.ajax({
-                    type: "POST",
-                    url: "/character",
-                    data: {character: data}
-                })//end ajax POST
-          }//end success fnction
-       })//ajax call
-    }//end if-else controlling whether to post or retrieve
-  })//heroClicks
 //_______________________
 
 //GET LIST OF CHARACTERS

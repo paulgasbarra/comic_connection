@@ -1,0 +1,16 @@
+body {
+   background-color: white;
+}
+
+circle {
+  fill: steelblue;
+}
+
+rect {
+  fill: steelblue;
+}
+
+text {
+  fill: black;
+  font: 12px sans-serif;
+  text-anchor: end;

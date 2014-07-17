@@ -5,3 +5,25 @@
 #characterStats {
 
 }
+
+.portrait{
+  float:left;
+  max-height: 150px;
+  margin: 5px;
+}
+
+.friends{
+  float: left;
+}
+
+.enemies{
+  float: left;
+}
+
+.powers{
+  float: left;
+}
+
+.teams{
+  float: left;
+}
