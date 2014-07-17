@@ -1,35 +1,44 @@
 
+function clearSVG(){
+  d3.select("svg").remove();
+}
+
 function d3Display(data)  {
 
-console.log("This right here is data " + data)
+  d3.select("svg").remove();
 
+console.log("This is the data that comes into d3 " + data)
+data2 = $.parseJSON(data)
+console.log(data2)
 // selectAll + data + enter + append
 
-var width = 1280,
-  height = 700,
+var width = 980,
+  height = 500,
   padding = 1.5, // separation between same-color nodes
   clusterPadding = 6,
   maxRadius = 30,
   radius = 80;
 
-d3.json(data, function(data) {
-  console.log("This is " + data)
-  list = data.results.character_enemies
-  console.log(fetch[0].name)
-  list.forEach(function(element, index, array){
+  var color = d3.scale.category10()
+    .domain(d3.range(10));
+
+d3.json(data2.json, function(data) {
+  console.log("This is" + data)
+  console.log("First character name = "+ data2[0].name)
+  data2.forEach(function(element, index, array){
 
 
         //cluster: i,
-        list[index].radius = Math.floor(Math.random()*10)+30
-        list[index].x = Math.cos(2 * Math.PI) * 200 + width / 2 + Math.random()
-        list[index].y = Math.sin( 2 * Math.PI) * 200 + height / 2 + Math.random()
-        list[index].width=30
-        list[index].height=30
-        list[index].textOffset = list[index].name.length
+        data2[index].radius = Math.floor(Math.random()*10)+30
+        data2[index].x = Math.cos(2 * Math.PI) * 200 + width / 2 + Math.random()
+        data2[index].y = Math.sin( 2 * Math.PI) * 200 + height / 2 + Math.random()
+        data2[index].width=30
+        data2[index].height=30
+        data2[index].textOffset = data2[index].name.length
 
 })
 
-  nodes = list
+  nodes = data2
 
   console.log(nodes)
 
@@ -40,11 +49,14 @@ d3.json(data, function(data) {
     .charge(.2)
     .on("tick", tick)
     .start();
+    d3.select("svg")
+       .remove();
 
   var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height",height);
 
+  //d3.select("svg").remove();
 
   var elem = svg.selectAll("g").data(nodes)
 

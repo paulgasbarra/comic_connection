@@ -81,5 +81,5 @@ test:
 production:
   <<: *default
   database: comic_connection_production
-  username: comic_connection
+  #username: comic_connection
   password: <%= ENV['COMIC_CONNECTION_DATABASE_PASSWORD'] %>

@@ -9,7 +9,12 @@ var displayList = function(list, el){
         })
 }
 
-var heroDisplay = function(data){
+var heroDisplay = function(data, group){
+    console.log(data.character_enemies)
+
+   // data2 = $.parseJSON(data.character_enemies)
+    data2 = JSON.stringify(data.character_enemies)
+    d3Display(data2);
     //name,id,count_of_issue_appearances,image,deck,character_enemies,
     //character_friends,powers,teams
     // $('#characterStats').html("")
@@ -25,7 +30,6 @@ var heroDisplay = function(data){
 
 
     enemies = data.character_enemies
-    console.log(enemies)
     friends = data.character_friends
     teams = data.teams
     powers = data.powers
@@ -129,6 +133,7 @@ $(function(){
 //Get character DATA
 $(document).on('click', ".hero", function (e){
      e.preventDefault();
+
      characterPresent(this.getAttribute('text'))
 
   })//heroClick
@@ -137,9 +142,11 @@ $(document).on('click', ".hero", function (e){
 
 //GET LIST OF CHARACTERS
   $('.submit').on('click', function (e){
-
     e.preventDefault();
-    console.log('you clicked?')
+
+    clearSVG()
+
+
     $("#characterData").html("")
     $("<p>").html('Loading...').appendTo("#characterData")
     var api = 'http://www.comicvine.com/api/characters';
