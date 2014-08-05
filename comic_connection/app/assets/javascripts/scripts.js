@@ -1,57 +1,3 @@
-var displayList = function(list, el){
-    $(list).each(function(index){
-            var api_key = "?api_key=c449b6dfe0d7bc76f14627f06f9ba2b2adb532b5"
-            listItemHTML = "<a href='#'>" + list[index].name + "</a>"
-            $listItem = $('<li>').html(listItemHTML)
-            $listItem.addClass("hero")
-            $listItem.attr('text', list[index].api_detail_url)
-            $listItem.appendTo(el)
-        })
-}
-
-var heroDisplay = function(data, group){
-    console.log(data.character_enemies)
-
-   // data2 = $.parseJSON(data.character_enemies)
-    data2 = JSON.stringify(data.character_enemies)
-    d3Display(data2);
-    //name,id,count_of_issue_appearances,image,deck,character_enemies,
-    //character_friends,powers,teams
-    // $('#characterStats').html("")
-    // $friends = $('<div>').addClass('friends')
-    // $enemies = $('<div>').addClass('enemies')
-    // $teams = $('<div>').addClass('teams')
-    // $powers = $('<div>').addClass('powers')
-
-    // $friends.html("<h2>Friends</h2>")
-    // $enemies.html("<h2>Enemies</h2>")
-    // $teams.html("<h2>Teams</h2>")
-    // $powers.html("<h2>Powers</h2>")
-
-
-    enemies = data.character_enemies
-    friends = data.character_friends
-    teams = data.teams
-    powers = data.powers
-
-
-
-    $('#characterData').html('')
-    $('<img>').addClass('portrait').attr('src', data.image).appendTo("#characterData")
-    $('<div>').html(data.name + ": " + data.deck).appendTo('#characterData')
-     $('<div>').html(data.count_of_issue_appearances).appendTo('#characterData')
-
-    // $($friends).appendTo('#characterStats')
-    // $($enemies).appendTo('#characterStats')
-    // $($teams).appendTo('#characterStats')
-    // $($powers).appendTo('#characterStats')
-
-    displayList(enemies, '.enemies')
-    displayList(friends, '.friends')
-    displayList(teams, '.teams')
-    displayList(powers, '.powers')
-
-}
 
 function sortResponse(feed){
    feed.sort(function(a, b)
@@ -69,10 +15,140 @@ function sortResponse(feed){
     });
  }
 
+function svgDisplay(character, cat) {
+    categoriesDisplay(character)
+    clearSVG()
+    console.log("This is the character data " + character)
+    switch(cat) {
+      case "friends":
+        $('.button').not('.friends').removeClass('buttonactive');
+        $('.friends').addClass('buttonactive');
+        data = JSON.stringify(character.character_friends)
+        d3Display(data);
+        break;
+    case "enemies":
+        $('.button').not('.enemies').removeClass('buttonactive');
+        $('.enemies').addClass('buttonactive');
+        data = JSON.stringify(character.character_enemies);
+        d3Display(data, {colorGoal: 'OrangeRed' } );
+        break;
+    case "teams":
+        $('.button').not('.teams').removeClass('buttonactive');
+        $('.teams').addClass('buttonactive');
+        data = JSON.stringify(character.teams)
+        options = {};
+        options.clickEvent = function powerClick(){ alert('boom') };
+        d3Display(data, {colorGoal: '#1E90FF'});
+        break;
+    case "powers":
+        $('.button').not('.powers').removeClass('buttonactive');
+        $('.powers').addClass('buttonactive');
+        data = JSON.stringify(character.powers)
+        options = {};
+        options.clickEvent = function powerClick(){ alert('boom') };
+        d3Display(data, {colorGoal: 'gold'}, options);
+        break;
+    case "teamProfile":
+        $('.button').not('.teams').removeClass('buttonactive');
+        $('.teams').addClass('buttonactive');
+        data = JSON.stringify(character.characters);
+        options = {};
+        d3Display(data, {colorGoal: '#1e90ff'}, options);
+        category = "teams"
+        break;
+    case "powerProfile":
+        $('.button').not('.powers').removeClass('buttonactive');
+        $('.powers').addClass('buttonactive');
+        data = JSON.stringify(character.characters);
+        options = {};
+        d3Display(data, {colorGoal: 'gold'});
+        category = "powers"
+        break;
+    default:
+        //Do nothing
+    }//End switch
+    return category;
+}
+
+
+var categoriesDisplay = function(data){
+//build buttons and titles
+    if (category === "teamProfile") {
+        $('#characterStats').html("")
+         $teams = $('<div>').addClass('button teams');
+         $teams.html("<h2>Members</h2>")
+         $($teams).appendTo('#characterStats')
+    } else if (category === "powerProfile") {
+        $('#characterStats').html("")
+         $powers = $('<div>').addClass('button powers');
+         $powers.html("<h2>Powered</h2>")
+         $($powers).appendTo('#characterStats')
+         data.image = "lightningbolt.jpeg"
+    } else {
+        $('#characterStats').html("")
+        $friends = $('<div>').addClass('button friends')
+        $enemies = $('<div>').addClass('button enemies')
+        $teams = $('<div>').addClass('button teams')
+        $powers = $('<div>').addClass('button powers')
+
+    $friends.html("<h2>Friends</h2>")
+    $enemies.html("<h2>Enemies</h2>")
+    $teams.html("<h2>Teams</h2>")
+    $powers.html("<h2>Powers</h2>")
+
+    if (data.character_friends.length != 0){$($friends).appendTo('#characterStats')};
+    if (data.character_enemies.length != 0){$($enemies).appendTo('#characterStats')};
+    if (data.teams.length != 0){$($teams).appendTo('#characterStats')};
+    if (data.powers.length != 0){$($powers).appendTo('#characterStats')};
+
+   }
+//populate screen
+    $('#characterData').html('')
+
+    //image
+    $('<div>').attr('id', 'profile').appendTo("#characterData")
+    $('<h1>').addClass('name').html(data.name).appendTo('#profile')
+    if (data.image === undefined) { data.image = "noImage.jpg"}
+    $('<p>').appendTo('#profile')
+    $('<img>').addClass('portrait').attr('src', data.image).appendTo("p")
+
+    //deck
+    if (data.deck === undefined){ data.deck = data.description}
+    $('<p>').addClass('deck').html(data.deck).appendTo('#profile');
+
+    //
+
+    if (data.count_of_issue_appearances != undefined){
+    $('<p>').addClass('appearances').html("Appearances: " + data.count_of_issue_appearances).appendTo('#profile')
+    }
+    if (data.publisher != undefined){
+    $('<p>').addClass('publisher').html("Publisher: " + data.publisher.name).appendTo('#profile')
+    }
+
+
+}
+
+
 function heroDetailApiGenerator(api){
     var api_key = "?api_key=c449b6dfe0d7bc76f14627f06f9ba2b2adb532b5";
     var format = "&format=json"
-    var heroFields = "&field_list=name,count_of_issue_appearances,api_detail_url,image,deck,character_enemies,character_friends,powers,teams"
+    var heroFields = "&field_list=name,publisher,count_of_issue_appearances,api_detail_url,image,deck,character_enemies,character_friends,powers,teams"
+    var requri = api + api_key + format + heroFields
+    return requri
+}
+
+function powerCharactersApiGenerator(api){
+    var api_key = "?api_key=c449b6dfe0d7bc76f14627f06f9ba2b2adb532b5";
+    var format = "&format=json"
+    var heroFields = "&limit=500&field_list=name,description,characters"
+    var requri = api + api_key + format + heroFields
+    return requri
+}
+
+function teamCharactersApiGenerator(api){
+    var api_key = "?api_key=c449b6dfe0d7bc76f14627f06f9ba2b2adb532b5";
+    var format = "&format=json"
+    var heroFields = "&field_list=name,deck,characters,image"
     var requri = api + api_key + format + heroFields
     return requri
 }
@@ -80,7 +156,7 @@ function heroDetailApiGenerator(api){
 function characterPresent(api){
 
 //sub function
-databaseOrAPI(api)
+//databaseOrAPI(api)
 //original//databaseOrAPI(character, api)
 
 //     $.ajax({
@@ -97,26 +173,39 @@ databaseOrAPI(api)
 
 //     })
  }
-function databaseOrAPI(api){
-//original function//function databaseOrAPI(data, api){
 
-        //if (data != false) {
-    //print data fetched from website
-          //heroDisplay(data);
-        //} else {
-    //else pull it from comicvine
+function characterData(api){
 
-          var requri = heroDetailApiGenerator(api)
-          console.log(requri)
+
+          if (api.indexOf("http://www.comicvine.com/api/power/") === 0)
+          {
+            console.log("Power clicked on: " + api )
+            var requri = powerCharactersApiGenerator(api)
+            category = "powerProfile"
+          }
+          else if (api.indexOf("http://www.comicvine.com/api/team/") === 0)
+          {
+            console.log("Team clicked on: " + api )
+            var requri = teamCharactersApiGenerator(api)
+            category = "teamProfile"
+          }
+          else
+          {
+            var requri = heroDetailApiGenerator(api)
+          }
+
+          console.log("This is the api request " + requri)
               $.ajax({
                 type: 'get',
                 url: '/data_request',
                 data: {url: requri},
                 dataType: 'json',
                 success: function(data){
+
                   data.character_id = data.id;
-                  data.image = data.image.medium_url;
-                  heroDisplay(data);
+                  if (data.image != undefined) {data.image = data.image.medium_url;}
+                  console.log("This is the result of the ajax api call" + data)
+                  svgDisplay(data, category);
                     $.ajax({
                         type: "POST",
                         url: "/character",
@@ -124,31 +213,62 @@ function databaseOrAPI(api){
                     })//end ajax POST
                 }//end success fnction
               })//ajax call
-      //  }//end if-else controlling whether to post or retrieve
 } //end of database or api
 
+//var category;
 
 $(function(){
+    //global declaration of category, this will act like a radio button, switching when buttons are clicked.
+    category = "friends";
+
+
 
 //Get character DATA
-$(document).on('click', ".hero", function (e){
-     e.preventDefault();
+$(document).on('click', '.hero', function (e){
 
-     characterPresent(this.getAttribute('text'))
+    e.preventDefault();
+    characterAPI = this.getAttribute('text');
+    console.log("This is the character api " + characterAPI)
+    characterData(characterAPI);
 
-  })//heroClick
+})//characterButtonClick
+
+$(document).on('click', '.friends', function (e){
+    e.preventDefault();
+    category = "friends";
+    $('.friends').addClass('buttonactive')
+    characterData(characterAPI);
+})
+
+$(document).on('click', '.enemies', function (e){
+    e.preventDefault();
+    category = "enemies";
+    characterData(characterAPI);
+})
+
+$(document).on('click', '.teams', function (e){
+    e.preventDefault();
+    category = "teams";
+    characterData(characterAPI);
+})
+
+$(document).on('click', '.powers', function (e){
+    e.preventDefault();
+    category = "powers";
+    characterData(characterAPI);
+})
 
 //_______________________
 
-//GET LIST OF CHARACTERS
-  $('.submit').on('click', function (e){
+//GET DATA AFTER CHOOSING CHARACTERS
+  $('.search').on('submit', function (e){
     e.preventDefault();
 
     clearSVG()
-
-
     $("#characterData").html("")
-    $("<p>").html('Loading...').appendTo("#characterData")
+    $("#characterStats").html("")
+
+    $("<p>").html('Loading...').appendTo("#characterData")//add a cool spinner
     var api = 'http://www.comicvine.com/api/characters';
     var api_key = "/?api_key=c449b6dfe0d7bc76f14627f06f9ba2b2adb532b5";
     var format = "&format=json"
@@ -178,14 +298,16 @@ $(document).on('click', ".hero", function (e){
             issues = feed[index].count_of_issue_appearances
             api_uri = feed[index].api_detail_url
             if (feed[index].image === null)
-                {image = "images/noImage.jpg"}
+                {image = "noImage.jpg"}
             else
-            {image = feed[index].image.thumb_url}
-            heroLink = "<a href='#'>" + name + " " + issues + "</a>"
-            $link = $("<li>").addClass("hero")
-            $link.attr('text', api_uri)
-            $link.html(heroLink).appendTo("#characterData")
-            $('<img>').attr('src', image).appendTo("#characterData")
+                {image = feed[index].image.thumb_url}
+
+            $characterLink = $('<div>')
+            $characterLink.addClass('hero')
+            $characterLink.attr('text', api_uri)
+            $characterLink.html("<a href='#'><img src='"+ image +"'></br>"+ name + "</a></div>")
+            $characterLink.appendTo("#characterData")
+
           })//feed.each loop
         }//end success function
     });//ajax call

@@ -3,123 +3,108 @@ function clearSVG(){
   d3.select("svg").remove();
 }
 
-function d3Display(data)  {
+function d3Display(data, options)  {
 
-  d3.select("svg").remove();
+  var options = options || {};
+  var success = options.success || function(){};
+  var colorGoal = options.colorGoal || 'green';
+  var clickEvent = options.clickEvent || function(d){
+    characterAPI = d.api_detail_url; characterData(d.api_detail_url);
+  }
 
-console.log("This is the data that comes into d3 " + data)
-data2 = $.parseJSON(data)
-console.log(data2)
-// selectAll + data + enter + append
 
-var width = 980,
-  height = 500,
-  padding = 1.5, // separation between same-color nodes
-  clusterPadding = 6,
-  maxRadius = 30,
-  radius = 80;
+  list = $.parseJSON(data)
+
+  if (list.length > 750)(list = list.slice(0,750))
+
+  if (list.length * 30 > 980){var width = 980}else if(list.length*30 < 500){var width = 800}else{var width = list.length * 30};
+  if (list.length * 30 > 600){var height = 600}else if(list.length*30 < 200){var height = 200}else{var height = list.length * 20};
+
+  var
+    padding = 1.5,
+    clusterPadding = 6,
+    maxRadius = 30,
+    radius = 80;
 
   var color = d3.scale.category10()
     .domain(d3.range(10));
 
-d3.json(data2.json, function(data) {
-  console.log("This is" + data)
-  console.log("First character name = "+ data2[0].name)
-  data2.forEach(function(element, index, array){
+  d3.json(list.json, function(data) {
+    console.log("This is list data: " + data)
+    list.forEach(function(element, index, array){
+
+          list[index].radius = Math.floor(Math.random()*10)+30
+          list[index].x = Math.cos(2 * Math.PI) * 200 + width / 2 + Math.random()
+          list[index].y = Math.sin( 2 * Math.PI) * 200 + height / 2 + Math.random()
+          // list[index].width=30
+          // list[index].height=30
+          list[index].textOffset = list[index].name.length
+
+    })
+
+    nodes = list
+
+    console.log(nodes)
+
+    var force = d3.layout.force()
+      .nodes(nodes)
+      .size([width, height])
+      .gravity(.05)
+      .charge(.1)
+      .on("tick", tick)
+      .start();
+
+    var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height",height);
+
+     var elem = svg.selectAll("g").data(nodes)
 
 
-        //cluster: i,
-        data2[index].radius = Math.floor(Math.random()*10)+30
-        data2[index].x = Math.cos(2 * Math.PI) * 200 + width / 2 + Math.random()
-        data2[index].y = Math.sin( 2 * Math.PI) * 200 + height / 2 + Math.random()
-        data2[index].width=30
-        data2[index].height=30
-        data2[index].textOffset = data2[index].name.length
+     var elemEnter = elem.enter().append("g");
 
-})
+     var circle = elemEnter.append('circle')
+        .style('fill', colorGoal)
+        .attr('r', function(d){return d.radius})
+      .call(force.drag)
+      .style("cursor", "pointer")
+      .on("click", function clickEventWrapper(d) { clickEvent(d) })
 
-  nodes = data2
+    var text = elemEnter.append('text')
+      .attr("dx", function(d){return -20})
+      .text(function(d){ return d.name })
+      .style("text-anchor", "middle")
+      .call(force.drag)
+      .style("cursor", "pointer")
+      .on("click", function clickEventWrapper(d) { clickEvent(d) })
 
-  console.log(nodes)
+    circle.transition()
+      .duration(750)
+      .delay(function(d, i) { return i * 5; })
+      .attrTween("r", function(d) {
+        var i = d3.interpolate(0, d.radius);
+        return function(t) { return radius = i(t); };
 
-  var force = d3.layout.force()
-    .nodes(nodes)
-    .size([width, height])
-    .gravity(.05)
-    .charge(.2)
-    .on("tick", tick)
-    .start();
-    d3.select("svg")
-       .remove();
+        success()
 
-  var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height",height);
-
-  //d3.select("svg").remove();
-
-  var elem = svg.selectAll("g").data(nodes)
-
-  var elemEnter = elem.enter().append("g");
-
-
-  var circle = elemEnter.append('circle')
-    .attr('r', function(d){return d.radius})
-    .call(force.drag);
-
-  var text = elemEnter.append('text')
-    .attr("dx", function(d){return -20})
-    .text(function(d){ return d.name })
-    .style("text-anchor", "middle")
-    //.attr("transform", function(d,i){ return "translate(0,"+i *divHeight + ")";});
-    .call(force.drag);
-
-  var link = elemEnter.append("svg:a")
-    .attr("xlink:href", function(d){return d.api_detail_url})
-
-
-  // node.append("circle")
-  //   .attr("r", function(d) {return radius;})
-  //   //.attr("cx", function(d) {return radius * 2;})
-  //   //.attr("x", divHeight - 1);
-  //   //.attr("y", divHeight / 2);
-
-// label = svg.selectAll("text")
-//   .data(nodes)
-//   .enter().append("text")
-//   .attr("x", node.cx)
-//   .attr("y", node.cy)
-//   //.attr("x", function(d) {return radius*2-3;})
-//   .style("text-anchor", "middle")
-//   //.attr("dy", ".35em")
-//   .text(function(d){return d.name;})
-//   .call(force.drag);
-
-  circle.transition()
-  .duration(750)
-  .delay(function(d, i) { return i * 5; })
-  .attrTween("r", function(d) {
-    var i = d3.interpolate(0, d.radius);
-    return function(t) { return radius = i(t); };
   });
 
   function tick(e) {
-  circle
-      //.each(cluster(10 * e.alpha * e.alpha))
-      .each(collide(.5))
-      .attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; });
-  text
-      .each(collide(.5))
-      .attr("dx", function(d) { return d.x ; })
-      .attr("dy", function(d) { return d.y; });
-  link
-      .each(collide(.5))
-      .attr("dx", function(d){return d.x})
-      .attr("dy", function(d){return d.y})
-}
 
-  // Resolves collisions between d and all other circles.
+  circle
+      .each(collide(.2))
+      .attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y-1; })
+
+
+  text
+      .each(collide(.2))
+      .attr("dx", function(d) { return d.x; })
+      .attr("dy", function(d) { return d.y; })
+
+  }
+
+// Resolves collisions between d and all other circles.
 function collide(alpha) {
   var quadtree = d3.geom.quadtree(nodes);
   return function(d) {
